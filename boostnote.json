@@ -4,6 +4,16 @@
       "key": "519177323b9b1554eb7a",
       "color": "#30D5C8",
       "name": "JAVA语言基础"
+    },
+    {
+      "key": "b20f3b104e55379f3ce4",
+      "color": "#E10051",
+      "name": "多线程"
+    },
+    {
+      "key": "7aeedd67bc6c0a7b9661",
+      "color": "#2BA5F7",
+      "name": "设计模式"
     }
   ],
   "version": "1.0"
