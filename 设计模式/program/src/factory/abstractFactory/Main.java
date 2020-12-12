@@ -8,6 +8,6 @@ public class Main {
         ComputerFactory factory = new ChinaComputerFactory();
         CPU cpu = factory.creatCPU();
         GPU gpu = factory.creatGPU();
-        
+
     }
 }

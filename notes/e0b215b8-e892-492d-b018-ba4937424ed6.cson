@@ -1,9 +1,12 @@
 createdAt: "2020-12-10T09:40:38.069Z"
-updatedAt: "2020-12-12T01:21:58.455Z"
+updatedAt: "2020-12-12T13:48:39.053Z"
 type: "MARKDOWN_NOTE"
 folder: "7aeedd67bc6c0a7b9661"
 title: "Strategy"
-tags: []
+tags: [
+  "设计模式"
+  "策略"
+]
 content: '''
   # Strategy
   
@@ -104,8 +107,6 @@ content: '''
       }
   }
   ```
-  
-  lorem,ipsum
   
   
   
