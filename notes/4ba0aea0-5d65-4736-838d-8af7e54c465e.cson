@@ -1,0 +1,26 @@
+createdAt: "2020-12-12T01:38:19.116Z"
+updatedAt: "2020-12-12T13:37:12.342Z"
+type: "MARKDOWN_NOTE"
+folder: "7aeedd67bc6c0a7b9661"
+title: "Factory"
+tags: []
+content: '''
+  # Factory
+  
+  ## 作用
+  
+  生成对象实例
+  
+  有了new之后，为什么还需要工厂?
+  （1）构造过程比较复杂
+  （2）灵活控制生产过程，可以限制生成对象的权限，对对象修饰，增加日志
+  
+  ## 简单工厂
+  
+  ![简单工厂]()
+  
+  
+'''
+linesHighlighted: []
+isStarred: false
+isTrashed: false
