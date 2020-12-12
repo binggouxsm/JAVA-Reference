@@ -4,6 +4,99 @@
 
 定义一系列算法，将每个算法封装到具有公共接口的一系列策略类中，从而使它们可以相互替换 ，让算法可在不影响客户端的情况下发生变化
 
-将算法责任与使用者之间解耦，使得算法可以独立于使用者，使用者可以根据不同的外部条件选择不同的算法解决问题。
+将算法与使用者之间解耦，使得算法可以独立于使用者，使用者可以根据不同的外部条件选择不同的算法解决问题。
 
-![Strategy UML](https://github.com/binggouxsm/JAVA-Reference/blob/master/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/pics/Strategy.png)
+![Strategy UML](https://gitee.com/binggouxsm/JAVA-Reference/raw/master/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/pics/Strategy.png)
+
+## 例子
+
+Comparator 接口类抽象策略类必须实现的方法
+```java
+public interface Comparator<T> {
+    public int compareTo(T o1, T o2);
+}
+```
+
+CatHeightComparator 实现 Comparator 接口，定义具体的算法
+```java
+public class CatHeightComparator implements Comparator<Cat> {
+    @Override
+    public int compareTo(Cat o1, Cat o2) {
+        if(o1.height < o2.height) return -1;
+        else if(o1.height > o2.height) return 1;
+        else return 0;
+    }
+}
+```
+CatWeightComparator 实现 Comparator 接口，定义具体的算法
+```java
+public class CatWeightComparator implements Comparator<Cat> {
+    @Override
+    public int compareTo(Cat o1, Cat o2) {
+        if(o1.weight < o2.weight) return -1;
+        else if(o1.weight > o2.weight) return 1;
+        else return 0;
+    }
+}
+```
+Cat 具体待比较的BO
+```java
+public class Cat {
+
+    public int weight;
+    public int height;
+
+    public Cat(int weight, int height) {
+        this.weight = weight;
+        this.height = height;
+    }
+
+    @Override
+    public String toString() {
+        return "Cat{" +
+                "weight=" + weight +
+                ", height=" + height +
+                '}';
+    }
+}
+```
+
+Sorter 对应 Context 里面包含 Comparator 即Strategy接口的具体实现，可以根据不同的情况，选择不同的 Strategy接口的具体实现，将算法和算法的使用方解耦
+
+```java
+public class Sorter<T> {
+
+    private Comparator<T> comparator;
+
+    public Sorter(Comparator<T> comparator) {
+        this.comparator = comparator;
+    }
+
+    public void setComparator(Comparator<T> comparator) {
+        this.comparator = comparator;
+    }
+
+    public void sort(T[] arr){
+        for (int i = 0; i < arr.length -1; i++) {
+            int minidx = i;
+            for (int j = i + 1; j < arr.length; j++) {
+                if(comparator.compareTo(arr[minidx],arr[j]) == 1){
+                    minidx = j;
+                }
+            }
+            swap(arr,i, minidx);
+        }
+    }
+
+    private void swap(T[] arr, int i , int j){
+        if(i == j) return;
+        T val = arr[i];
+        arr[i] = arr[j];
+        arr[j] = val;
+
+    }
+}
+```
+
+
+
