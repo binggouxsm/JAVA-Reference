@@ -1,5 +1,5 @@
 createdAt: "2020-12-12T14:32:21.627Z"
-updatedAt: "2020-12-12T15:12:41.712Z"
+updatedAt: "2020-12-12T15:16:03.642Z"
 type: "MARKDOWN_NOTE"
 folder: "7aeedd67bc6c0a7b9661"
 title: "Facade"
@@ -11,7 +11,7 @@ content: '''
   
   为多个复杂的子系统提供一个一致的接口，而使这些子系统更加容易被访问
   
-  ![Facade 模式]()
+  ![Facade 模式](https://gitee.com/binggouxsm/JAVA-Reference/raw/master/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/pics/Facade.png)
   
   优点：
   - 降低了子系统与客户端之间的耦合度，使得子系统的变化不会影响调用它的客户类。
