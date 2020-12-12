@@ -1,5 +1,5 @@
 createdAt: "2020-12-10T09:40:38.069Z"
-updatedAt: "2020-12-10T16:01:19.891Z"
+updatedAt: "2020-12-12T01:08:17.543Z"
 type: "MARKDOWN_NOTE"
 folder: "7aeedd67bc6c0a7b9661"
 title: "Strategy"
@@ -13,7 +13,7 @@ content: '''
   
   将算法与使用者之间解耦，使得算法可以独立于使用者，使用者可以根据不同的外部条件选择不同的算法解决问题。
   
-  ![Strategy UML](https://raw.githubusercontent.com/binggouxsm/JAVA-Reference/master/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/pics/Strategy.png)
+  ![Strategy UML](https://gitee.com/binggouxsm/JAVA-Reference/raw/master/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/pics/Strategy.png)
   
   ## 例子
   
@@ -104,6 +104,9 @@ content: '''
       }
   }
   ```
+  
+  
+  
   
 '''
 linesHighlighted: []
