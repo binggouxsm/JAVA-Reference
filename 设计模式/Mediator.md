@@ -6,6 +6,8 @@
 
 Mediator定义一个中介对象来封装一系列对象之间的交互，使原有对象之间的耦合松散，且可以独立地改变它们之间的交互。迪米特法则的应用。
 
+![Mediator 模式](https://gitee.com/binggouxsm/JAVA-Reference/raw/master/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/pics/Mediator.png)
+
 优点：
 - 类之间各司其职，符合迪米特法则
 - 降低对象之间的耦合性，使对象可以复用
@@ -57,6 +59,30 @@ public abstract class Mediator {
     // 转发
     public abstract void relay(Colleague from, String msg);
 
+}
+
+public class ConcreteMediator extends Mediator{
+
+    private List<Colleague> colleagues = new ArrayList<>();
+
+    @Override
+    public void register(Colleague c) {
+        colleagues.add(c);
+        c.setMediator(this);
+    }
+
+    @Override
+    public void unregister(Colleague c) {
+        colleagues.remove(c);
+        c.setMediator(this);
+    }
+
+    @Override
+    public void relay(Colleague from, String msg) {
+        for (int i = 0; i < colleagues.size(); i++) {
+            colleagues.get(i).receive(from,msg);
+        }
+    }
 }
 
 public class Main {

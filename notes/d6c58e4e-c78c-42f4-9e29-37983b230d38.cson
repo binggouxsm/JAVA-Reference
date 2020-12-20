@@ -1,9 +1,12 @@
 createdAt: "2020-12-12T14:32:21.627Z"
-updatedAt: "2020-12-12T15:16:03.642Z"
+updatedAt: "2020-12-20T03:09:57.573Z"
 type: "MARKDOWN_NOTE"
 folder: "7aeedd67bc6c0a7b9661"
 title: "Facade"
-tags: []
+tags: [
+  "设计模式"
+  "门面"
+]
 content: '''
   # Facade
   
