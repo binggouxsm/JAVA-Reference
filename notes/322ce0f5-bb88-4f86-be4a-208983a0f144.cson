@@ -1,5 +1,5 @@
 createdAt: "2020-12-21T01:44:26.778Z"
-updatedAt: "2020-12-21T15:17:51.466Z"
+updatedAt: "2020-12-21T15:22:52.738Z"
 type: "MARKDOWN_NOTE"
 folder: "7aeedd67bc6c0a7b9661"
 title: "责任链"
@@ -136,7 +136,7 @@ content: '''
       }
   }
   ```
-  ![FilterChain](https://gitee.com/binggouxsm/JAVA-Reference/raw/master/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/pics/FliterChain.png)
+  ![FilterChain](https://gitee.com/binggouxsm/JAVA-Reference/raw/master/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/pics/FilterChain.png)
   
   ### FilterChain 测试
   
