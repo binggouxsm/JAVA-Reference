@@ -1,11 +1,13 @@
 createdAt: "2020-12-23T12:36:26.432Z"
-updatedAt: "2020-12-24T13:51:00.765Z"
+updatedAt: "2020-12-29T01:34:49.933Z"
 type: "MARKDOWN_NOTE"
 folder: "2cbd187a875ba3883242"
-title: "类加载"
-tags: []
+title: "类加载（一）"
+tags: [
+  "类加载"
+]
 content: '''
-  # 类加载
+  # 类加载（一）
   
   ##  基本概念
   
@@ -81,19 +83,16 @@ content: '''
   6. 接口中定义了JDK 8新加入的默认方法（default修饰符），实现类在初始化之前需要先初始化其接口
   
   
+  
   不触发类初始化（被动引用）：
   1. 子类引用父类的静态字段，只会触发子类的加载、父类的初始化，不会导致子类初始化
   2. 通过数组定义来引用类，不会触发此类的初始化
   3. 常量在编译阶段会进行常量优化，将常量存入调用类的常量池中，本质上并没有直接引用到定义常量的类，因此不会触发定义常量的类的初始化。
   
-  ## ClassLoader
-  
+  初始化触发时机的测试代码见：[链接](https://gitee.com/binggouxsm/JAVA-Reference/tree/master/JVM/program/src/main/java/com/eden/jvmlearning/classloader/initialtrigger)
   
   
   ## 参考文献
-  
-  
-  
   [一文带你深扒ClassLoader内核，揭开它的神秘面纱！](https://www.sohu.com/a/436313969_427741)
 '''
 linesHighlighted: []
