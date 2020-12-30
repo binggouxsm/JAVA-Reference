@@ -1,5 +1,5 @@
 createdAt: "2020-12-25T14:20:25.779Z"
-updatedAt: "2020-12-29T04:06:12.102Z"
+updatedAt: "2020-12-29T04:10:13.261Z"
 type: "MARKDOWN_NOTE"
 folder: "2cbd187a875ba3883242"
 title: "类加载（二）"
@@ -168,7 +168,7 @@ content: '''
   
   ## resolveClass
   
-  作用：对 Class 对象进行连接（link），具体参见[类加载(一)](类加载(一).md)中的连接(Linking)过程
+  作用：对 Class 对象进行连接（link），具体参见[类加载(一)](类加载（一）.md)中的连接(Linking)过程
   
   ## 双亲委托
   
