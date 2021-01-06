@@ -1,7 +1,7 @@
 package com.eden.javalearning.reflection;
 
 public interface Flyable {
-    public void fly();
+    void fly();
 
-    public void fly(int speed);
+    void fly(int speed);
 }

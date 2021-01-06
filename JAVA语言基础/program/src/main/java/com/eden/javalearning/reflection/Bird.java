@@ -1,10 +1,19 @@
 package com.eden.javalearning.reflection;
 
+
+import com.eden.javalearning.reflection.annotations.MyMethodAnnotation;
+
+
 public class Bird implements Flyable{
 
     private String category;
 
     private int age;
+
+    public String name;
+
+
+    protected String nickname;
 
     public Bird() {
     }
@@ -30,13 +39,22 @@ public class Bird implements Flyable{
         this.age = age;
     }
 
-    @Override
+    @MyMethodAnnotation(value = "aaa", request = {"asd","bbbb"})
     public void fly() {
+        sing();
         System.out.println("Bird fly");
     }
 
-    @Override
     public void fly(int speed) {
+        sing();
         System.out.println("Bird fly at"+speed);
+    }
+
+    private void sing(){
+        System.out.println("Bird singing");
+    }
+
+    protected void growOld(){
+        this.age++;
     }
 }
