@@ -1,7 +1,11 @@
 package com.eden.javalearning.reflection;
 
 
+import com.eden.javalearning.reflection.annotations.MyFieldAnnotation;
 import com.eden.javalearning.reflection.annotations.MyMethodAnnotation;
+
+import java.util.Arrays;
+import java.util.List;
 
 
 public class Bird implements Flyable{
@@ -10,10 +14,11 @@ public class Bird implements Flyable{
 
     private int age;
 
+    @MyFieldAnnotation
     public String name;
 
 
-    protected String nickname;
+    protected List<String> nickname;
 
     public Bird() {
     }
@@ -56,5 +61,17 @@ public class Bird implements Flyable{
 
     protected void growOld(){
         this.age++;
+    }
+
+    public List<String> getNickname() {
+        return nickname;
+    }
+
+    public void setNickname(List<String> nickname) {
+        this.nickname = nickname;
+    }
+
+    public void setNicknameVarArg(String... nicknames){
+        this.nickname = Arrays.asList(nicknames);
     }
 }

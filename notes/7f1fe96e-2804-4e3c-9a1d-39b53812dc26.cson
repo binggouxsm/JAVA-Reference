@@ -1,5 +1,5 @@
 createdAt: "2021-01-04T01:55:34.656Z"
-updatedAt: "2021-01-06T02:30:29.357Z"
+updatedAt: "2021-01-06T03:12:03.227Z"
 type: "MARKDOWN_NOTE"
 folder: "519177323b9b1554eb7a"
 title: "注解"
@@ -59,12 +59,41 @@ content: '''
   
   @Inherited修饰父类时，子类继承父类的Inherited的注解。
   @Inherited修饰接口时，不存在上述继承关系
+  @Inherited修饰方法等其他时，均无效果
   
+  [Inherited 测试代码](https://gitee.com/binggouxsm/JAVA-Reference/tree/master/JAVA%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80/program/src/main/java/com/eden/javalearning/annotation/inherited)
   
+  ## 设置和获取注解值
+  ```java
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target(ElementType.METHOD)
+  public @interface ValueAnno {
+      int sort() default 0;
+      String value();
+      String[] request();
+  }
+  
+  public class Test {
+      @ValueAnno(value = "aasd", request = {"asda","vvvvv"})
+      public void testMethod(){
+      }
+  }
+  
+  public class Main {
+      public static void main(String[] args) throws Exception {
+          Method method = Test.class.getMethod("testMethod",null);
+          ValueAnno anno = method.getAnnotation(ValueAnno.class);
+          System.out.println(anno.request());
+          System.out.println(anno.value());
+          System.out.println(anno.value());
+      }
+  }
+  
+  ```
   
   ## 插件化组件处理
   
-  插件化注解处理(Pluggable Annotation Processing)API （JSR 269）提供一套标准API来处理Annotations。
+  插件化注解处理(Pluggable Annotation Processing)API （JSR 269）提供一套标准API来在编译阶段处理Annotations。
   
   1、自定义一个Annotation Processor，需要继承javax.annotation.processing.AbstractProcessor，并覆写process方法。
   2、自定义一个注解，注解的元注解需要指定@Retention(RetentionPolicy.SOURCE)。
@@ -119,6 +148,8 @@ content: '''
   
   
 '''
-linesHighlighted: []
+linesHighlighted: [
+  73
+]
 isStarred: false
 isTrashed: false

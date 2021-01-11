@@ -46,6 +46,7 @@ public class FlexBoProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         for (TypeElement typeElement : annotations) {
+
             Set<? extends Element> annotatedElements = roundEnv.getElementsAnnotatedWith(typeElement);
             for (Element element : annotatedElements) {
                 JCTree jcTree = trees.getTree(element);

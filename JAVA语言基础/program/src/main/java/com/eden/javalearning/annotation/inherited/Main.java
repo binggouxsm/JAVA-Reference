@@ -40,5 +40,11 @@ public class Main {
             System.out.println(anno[i].toString());
         }
 
+        anno = ImplClazz.class.getAnnotations();
+        System.out.println("Clazz Implment Parent Interface has annotation");
+        for (int i = 0; i < anno.length; i++) {
+            System.out.println(anno[i].toString());
+        }
+
     }
 }

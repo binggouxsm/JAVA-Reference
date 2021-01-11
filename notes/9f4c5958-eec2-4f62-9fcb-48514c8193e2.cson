@@ -1,5 +1,5 @@
 createdAt: "2020-12-28T08:48:36.424Z"
-updatedAt: "2021-01-06T01:38:59.361Z"
+updatedAt: "2021-01-11T04:19:26.947Z"
 type: "MARKDOWN_NOTE"
 folder: "519177323b9b1554eb7a"
 title: "反射"
@@ -24,16 +24,230 @@ content: '''
   
   ## 具体功能
   
+  基础代码：
+  
   ```java
   public interface Flyable {
       public void fly();
       public void fly(int speed);
   }
   
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target(ElementType.FIELD)
+  public @interface MyFieldAnnotation {
+  }
+  
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target(ElementType.METHOD)
+  public @interface MyMethodAnnotation {
+      int sort() default 0;
+      String value();
+      String[] request();
+  }
+  
+  public class Bird implements Flyable{
+      private String category;
+      private int age;
+      @MyFieldAnnotation
+      public String name;
+      protected List<String> nickname;
+      public Bird() {
+      }
+      public Bird(String category, int age) {
+          this.category = category;
+          this.age = age;
+      }
+      public String getCategory() {
+          return category;
+      }
+      public void setCategory(String category) {
+          this.category = category;
+      }
+      public int getAge() {
+          return age;
+      }
+      public void setAge(int age) {
+          this.age = age;
+      }
+      @MyMethodAnnotation(value = "aaa", request = {"asd","bbbb"})
+      public void fly() {
+          sing();
+          System.out.println("Bird fly");
+      }
+      public void fly(int speed) {
+          sing();
+          System.out.println("Bird fly at"+speed);
+      }
+      private void sing(){
+          System.out.println("Bird singing");
+      }
+      protected void growOld(){
+          this.age++;
+      }
+      public List<String> getNickname() {
+          return nickname;
+      }
+      public void setNickname(List<String> nickname) {
+          this.nickname = nickname;
+      }
+      public void setNicknameVarArg(String... nicknames){
+          this.nickname = Arrays.asList(nicknames);
+      }
+  }
+  
+  public class Swallow extends Bird {
+  }
   ```
   
-  ### 获取Class对象
+  ###  获取Class对象
   
+  ```java
+  // 对象实例，调用object.getClass()
+  Class cl10 = new Bird().getClass();
+  System.out.println(cl10.toString());
+  
+  Bird[] arr10 = new Bird[10];
+  System.out.println(arr10.getClass());// 运行结果为 class [Lcom.eden.javalearning.reflection.Bird;
+  
+  double[] darr = new double[10];
+  System.out.println(darr.getClass());// 运行结果为 class [D
+  
+  // 通过类的类型获取Class对象
+  System.out.println(int.class.toString());
+  System.out.println(Bird.class.toString());
+  
+  // 通过类的全限定名获取Class对象，基础类型无法使用此方法
+  System.out.println(Class.forName("com.eden.javalearning.reflection.Swallow"));
+  // 通过调用反射的相关方法获取Class对象
+  System.out.println(Swallow.class.getSuperclass().toString());
+  
+  ```
+  
+  ###  访问Field对象
+  
+  打印Field信息
+  
+  ```java
+  Class clazz = Bird.class;
+  // 获取所有的public变量
+  Field[] fields = clazz.getFields();
+  
+  // 获取所有声明的变量（包括private）
+  Field[] declaredFields = clazz.getDeclaredFields();
+  
+  for(Field field : declaredFields){
+      StringBuffer sb = new StringBuffer();
+      sb.append(" modifier : "+ Modifier.toString(field.getModifiers()));
+      sb.append(" type = " + field.getType());
+      sb.append(" Generic type = " + field.getGenericType().getTypeName());
+  
+      sb.append(" field name = " + field.getName());
+      Annotation[] ann = field.getAnnotations();
+  
+      if(ann.length >0){
+          sb.append(" annotation = ");
+          for(Annotation a: ann){
+              sb.append(a.annotationType().getName());
+              sb.append(" , ");
+          }
+      }
+      System.out.println(sb.toString());
+  }
+  ```
+  
+  设置和访问Field值
+  
+  
+  ```java
+  Bird swallow = new Bird("swallow", 1);
+  Class clazz = swallow.getClass();
+  Field fieldAge = clazz.getDeclaredField("age");
+  // 访问私有变量，需设置Accessible
+  fieldAge.setAccessible(true);
+  System.out.println(fieldAge.getInt(swallow));
+  fieldAge.setInt(swallow,3);
+  System.out.println(swallow.getAge());
+  
+  
+  Field fieldCat = clazz.getDeclaredField("category");
+  fieldCat.setAccessible(true);
+  System.out.println(fieldCat.get(swallow));
+  // 故意设置类型不同的值，返回报错IllegalArgumentException
+  fieldCat.set(swallow,new ArrayList<>());
+  ```
+  
+  ### 访问Method和Constructor对象
+  
+  打印Constructor信息
+  
+  ```java
+  Class clazz = Bird.class;
+  Constructor[] constructors = clazz.getConstructors();
+  for (Constructor constructor : constructors){
+      StringBuffer sb = new StringBuffer();
+      sb.append(" modifiers "+ Modifier.toString(constructor.getModifiers()));
+      sb.append(" name "+ constructor.getName());
+  
+      Parameter[] parameters = constructor.getParameters();
+      sb.append(parameterprint(parameters));
+      System.out.println(sb.toString());
+  
+  }
+  
+  
+  private static StringBuffer parameterprint(Parameter[] parameters){
+      StringBuffer sb = new StringBuffer();
+      for (int i = 0; i < parameters.length; i++) {
+          sb.append(" parameter["+ i +"]: ");
+          sb.append(parameters[i].getType()+" ");
+          //获取参数名称，如果编译时未加上`-parameters`，返回的名称形如`argX`, X为参数在方法声明中的位置，从0开始
+          sb.append(parameters[i].getName()+" ");
+          // 判断是否为可变参数
+          sb.append(parameters[i].isVarArgs()+" ");
+  
+      }
+      return sb;
+  }
+  ```
+  
+  打印Method 信息
+  
+  ```java
+  Class clazz = Bird.class;
+  Method[] declaredMethods = clazz.getDeclaredMethods();
+  
+  for (Method method: declaredMethods){
+      StringBuffer sb = new StringBuffer();
+      sb.append(" modifiers "+ Modifier.toString(method.getModifiers()));
+  
+      sb.append(" returnType "+ method.getReturnType().toString());
+      sb.append(" GenericReturnType "+ method.getGenericReturnType());
+  
+      sb.append(" name "+ method.getName());
+  
+      Parameter[] parameters = method.getParameters();
+      sb.append(parameterprint(parameters));
+      System.out.println(sb.toString());
+  }
+  ```
+  
+  方法调用
+  
+  ```java
+  Class clazz = Bird.class;
+  Object bird = clazz.getConstructor(null).newInstance();
+  
+  Method method = clazz.getDeclaredMethod("fly", int.class);
+  method.invoke(bird,5);
+  
+  // 可变参数方法的调用
+  Object varArgs = new String[]{"asd","vvvvv","asdasd"};
+  Method varargsMethod = clazz.getDeclaredMethod("setNicknameVarArg", String[].class);
+  // varArgs必须是Object类型，否则会报错 wrong number of arguments
+  varargsMethod.invoke(bird,varArgs);
+  
+  System.out.println(((Bird)bird).getNickname());
+  ```
   
   
 '''
