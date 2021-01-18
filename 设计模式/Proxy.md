@@ -17,8 +17,72 @@
 
 ## 实现
 
+```java
+public interface Subject {
+	public void request();
+}
 
+public class RealSubject implements Subject {
+	public void request() {
+		try {
+			Thread.sleep((long) (10000*Math.random()));
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("Doing Something");
+	}
+}
 
+public class LogProxy implements Subject{
+	private Subject target;
+
+	public LogProxy(Subject target) {
+		this.target = target;
+	}
+	
+	public void request() {
+		// Doing something before request 
+		System.out.println("Doing something before request");
+		target.request();
+		// Doing something after request
+		System.out.println("Doing something after request");
+	}
+}
+
+public class TimeProxy implements Subject{
+	private Subject target;
+
+	public TimeProxy(Subject target) {
+		this.target = target;
+	}
+	
+	public void request() {
+		long start = System.currentTimeMillis();
+		target.request();
+		long end = System.currentTimeMillis();
+		System.out.println("Request finish in " + (end -start));
+	}
+}
+
+public class Main {
+	public static void main(String[] args) {
+		Subject proxy = new TimeProxy(new LogProxy(new RealSubject()));
+		proxy.request();
+	}
+}
+
+```
 
 ## 动态代理
+
 jdk.proxy.ProxyGenerator.saveGeneratedFiles true
+
+
+System.setProperty(DebuggingClassWriter.DEBUG_LOCATION_PROPERTY, "D:\\class");  --该设置用于输出cglib动态代理产生的类
+System.getProperties().put("sun.misc.ProxyGenerator.saveGeneratedFiles", "true");   --该设置用于输出jdk动态代理产生的类
+
+
+https://www.jianshu.com/p/269afd0a52e6
+
+https://www.jianshu.com/p/a501d53aeb6a
