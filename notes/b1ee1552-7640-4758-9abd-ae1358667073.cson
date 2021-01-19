@@ -1,5 +1,5 @@
 createdAt: "2021-01-19T05:46:46.144Z"
-updatedAt: "2021-01-19T08:08:33.746Z"
+updatedAt: "2021-01-19T14:22:18.029Z"
 type: "MARKDOWN_NOTE"
 folder: "519177323b9b1554eb7a"
 title: "代理"
@@ -142,7 +142,7 @@ content: '''
   
   ### 原理浅析
   
-  通过设置JVM参数 sun.misc.ProxyGenerator.saveGeneratedFiles 为true (JDK8 以后的版本参数为jdk.proxy.ProxyGenerator.saveGeneratedFiles)，JVM会将通过ASM字节码操作框架，动态生成的代理类$Proxy0输出到本地。
+  通过设置JVM参数 sun.misc.ProxyGenerator.saveGeneratedFiles 为true (JDK8 以后的版本参数为jdk.proxy.ProxyGenerator.saveGeneratedFiles)，JVM会将通过ASM（字节码操作框架）动态生成的代理类$Proxy0输出到本地。
   
   反编译后如下：
   ```java
@@ -212,16 +212,468 @@ content: '''
   ```
   
   
+  ![JDK Proxy类图](https://gitee.com/binggouxsm/JAVA-Reference/raw/master/JAVA%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80/pics/jdkproxy.png)
+  
+  $Proxy0实现Subject接口，继承java.lang.reflect.Proxy类。java.lang.reflect.Proxy类是所有代理类的父类。
+  
+  $Proxy0中，定义了private static Method method0-3，类初始化时，通过反射获取了Object类中 equals、toString、hashCode方法，以及目标接口Subject中需要实现的方法，赋给method0-3变量。
+  
+  $Proxy0构造方法中传入InvocationHandler实例h，在触发具体方法时，调用super.h.invoke(this, method, args) , 第一个参数为 Object proxy 为，生成的代理对象，method 为当前调用的代理方法，指向目标接口的方法，args是方法的传入参数。
+  
+  RealInvocationHandler实现java.lang.reflect.InvocationHandler接口，构造函数中，构造参数为目标对象target，在invoke方法中，method.invoke(target, args); 触发目标对象实际的方法调用。
+  
+  缺点：动态代理必须实现某个具体接口
    
    ## CGLIB 动态代理
+   
+   ### 具体实现
+   
+   ```java
+   public class LogInterceptor implements MethodInterceptor {
+  
+      public Object intercept(Object o, Method method, Object[] objects, MethodProxy proxy) throws Throwable {
+          // Doing something before request
+          System.out.println("Doing something before request");
+          Object result = proxy.invokeSuper(o,objects);
+          // Doing something after request
+          System.out.println("Doing something after request");
+          return result;
+      }
+  }
+  
+  public class TimeInterceptor implements MethodInterceptor {
+  
+      private Object target;
+  
+      public TimeInterceptor(Object target) {
+          this.target = target;
+      }
+  
+      public Object intercept(Object o, Method method, Object[] objects, MethodProxy proxy) throws Throwable {
+          long start = System.currentTimeMillis();
+          Object result = proxy.invoke(target,objects);
+          long end = System.currentTimeMillis();
+          System.out.println("Request finish in " + (end -start));
+          return result;
+      }
+  }
+  
+  public class Main {
+      public static void main(String[] args) {
+          // 该设置用于输出cglib动态代理产生的类
+          System.setProperty(DebuggingClassWriter.DEBUG_LOCATION_PROPERTY, ".");
+  
+          Enhancer enhancer = new Enhancer();
+          enhancer.setSuperclass(RealSubject.class);
+  
+          // 通过invokeSuper的方式，直接调用代理类的父类方法
+          System.out.println("=================================");
+          enhancer.setCallback(new LogInterceptor());
+          Subject proxy = (Subject)enhancer.create();
+          proxy.request();
+  
+          // 通过invoke的方式，直接调用目标类的方法
+          System.out.println("=================================");
+          Subject subject = new RealSubject();
+          enhancer.setCallback(new TimeInterceptor(subject));
+          Subject proxy1 = (Subject)enhancer.create();
+          proxy1.request();
+  
+      }
+  }
+   ```
+  通过设置参数DebuggingClassWriter.DEBUG_LOCATION_PROPERTY的路径，可将CGLIB动态生成的动态类输出到指定路径
+  
+  CGLIB会生成三个文件：代理类（继承自目标类）、代理类的FastClass类、目标类的FastClass类
+  
+  FastClass类主要实现了字节码与执行方法的索引关系。cglib代理以这种方式避免了对被代理对象的反射调用，这也是cglib性能较优于JDK代理的地方。
+  
+  其中代理类反编译结果如下：
+  ```java
+  import java.lang.reflect.Method;
+  import net.sf.cglib.core.ReflectUtils;
+  import net.sf.cglib.core.Signature;
+  import net.sf.cglib.proxy.Callback;
+  import net.sf.cglib.proxy.Factory;
+  import net.sf.cglib.proxy.MethodInterceptor;
+  import net.sf.cglib.proxy.MethodProxy;
+  
+  public class RealSubject$$EnhancerByCGLIB$$8db2de4d extends RealSubject implements Factory {
+      private boolean CGLIB$BOUND;
+      private static final ThreadLocal CGLIB$THREAD_CALLBACKS;
+      private static final Callback[] CGLIB$STATIC_CALLBACKS;
+      private MethodInterceptor CGLIB$CALLBACK_0;
+      private static final Method CGLIB$request$0$Method;
+      private static final MethodProxy CGLIB$request$0$Proxy;
+      private static final Object[] CGLIB$emptyArgs;
+      private static final Method CGLIB$finalize$1$Method;
+      private static final MethodProxy CGLIB$finalize$1$Proxy;
+      private static final Method CGLIB$equals$2$Method;
+      private static final MethodProxy CGLIB$equals$2$Proxy;
+      private static final Method CGLIB$toString$3$Method;
+      private static final MethodProxy CGLIB$toString$3$Proxy;
+      private static final Method CGLIB$hashCode$4$Method;
+      private static final MethodProxy CGLIB$hashCode$4$Proxy;
+      private static final Method CGLIB$clone$5$Method;
+      private static final MethodProxy CGLIB$clone$5$Proxy;
+  
+      static void CGLIB$STATICHOOK1() {
+          CGLIB$THREAD_CALLBACKS = new ThreadLocal();
+          CGLIB$emptyArgs = new Object[0];
+          Class var0 = Class.forName("com.eden.javalearning.proxy.RealSubject$$EnhancerByCGLIB$$8db2de4d");
+          Class var1;
+          CGLIB$request$0$Method = ReflectUtils.findMethods(new String[]{"request", "()V"}, (var1 = Class.forName("com.eden.javalearning.proxy.RealSubject")).getDeclaredMethods())[0];
+          CGLIB$request$0$Proxy = MethodProxy.create(var1, var0, "()V", "request", "CGLIB$request$0");
+          Method[] var10000 = ReflectUtils.findMethods(new String[]{"finalize", "()V", "equals", "(Ljava/lang/Object;)Z", "toString", "()Ljava/lang/String;", "hashCode", "()I", "clone", "()Ljava/lang/Object;"}, (var1 = Class.forName("java.lang.Object")).getDeclaredMethods());
+          CGLIB$finalize$1$Method = var10000[0];
+          CGLIB$finalize$1$Proxy = MethodProxy.create(var1, var0, "()V", "finalize", "CGLIB$finalize$1");
+          CGLIB$equals$2$Method = var10000[1];
+          CGLIB$equals$2$Proxy = MethodProxy.create(var1, var0, "(Ljava/lang/Object;)Z", "equals", "CGLIB$equals$2");
+          CGLIB$toString$3$Method = var10000[2];
+          CGLIB$toString$3$Proxy = MethodProxy.create(var1, var0, "()Ljava/lang/String;", "toString", "CGLIB$toString$3");
+          CGLIB$hashCode$4$Method = var10000[3];
+          CGLIB$hashCode$4$Proxy = MethodProxy.create(var1, var0, "()I", "hashCode", "CGLIB$hashCode$4");
+          CGLIB$clone$5$Method = var10000[4];
+          CGLIB$clone$5$Proxy = MethodProxy.create(var1, var0, "()Ljava/lang/Object;", "clone", "CGLIB$clone$5");
+      }
+  
+      final void CGLIB$request$0() {
+          super.request();
+      }
+  
+      public final void request() {
+          MethodInterceptor var10000 = this.CGLIB$CALLBACK_0;
+          if (var10000 == null) {
+              CGLIB$BIND_CALLBACKS(this);
+              var10000 = this.CGLIB$CALLBACK_0;
+          }
+  
+          if (var10000 != null) {
+              var10000.intercept(this, CGLIB$request$0$Method, CGLIB$emptyArgs, CGLIB$request$0$Proxy);
+          } else {
+              super.request();
+          }
+      }
+  
+      final void CGLIB$finalize$1() throws Throwable {
+          super.finalize();
+      }
+  
+      protected final void finalize() throws Throwable {
+          MethodInterceptor var10000 = this.CGLIB$CALLBACK_0;
+          if (var10000 == null) {
+              CGLIB$BIND_CALLBACKS(this);
+              var10000 = this.CGLIB$CALLBACK_0;
+          }
+  
+          if (var10000 != null) {
+              var10000.intercept(this, CGLIB$finalize$1$Method, CGLIB$emptyArgs, CGLIB$finalize$1$Proxy);
+          } else {
+              super.finalize();
+          }
+      }
+  
+      final boolean CGLIB$equals$2(Object var1) {
+          return super.equals(var1);
+      }
+  
+      public final boolean equals(Object var1) {
+          MethodInterceptor var10000 = this.CGLIB$CALLBACK_0;
+          if (var10000 == null) {
+              CGLIB$BIND_CALLBACKS(this);
+              var10000 = this.CGLIB$CALLBACK_0;
+          }
+  
+          if (var10000 != null) {
+              Object var2 = var10000.intercept(this, CGLIB$equals$2$Method, new Object[]{var1}, CGLIB$equals$2$Proxy);
+              return var2 == null ? false : (Boolean)var2;
+          } else {
+              return super.equals(var1);
+          }
+      }
+  
+      final String CGLIB$toString$3() {
+          return super.toString();
+      }
+  
+      public final String toString() {
+          MethodInterceptor var10000 = this.CGLIB$CALLBACK_0;
+          if (var10000 == null) {
+              CGLIB$BIND_CALLBACKS(this);
+              var10000 = this.CGLIB$CALLBACK_0;
+          }
+  
+          return var10000 != null ? (String)var10000.intercept(this, CGLIB$toString$3$Method, CGLIB$emptyArgs, CGLIB$toString$3$Proxy) : super.toString();
+      }
+  
+      final int CGLIB$hashCode$4() {
+          return super.hashCode();
+      }
+  
+      public final int hashCode() {
+          MethodInterceptor var10000 = this.CGLIB$CALLBACK_0;
+          if (var10000 == null) {
+              CGLIB$BIND_CALLBACKS(this);
+              var10000 = this.CGLIB$CALLBACK_0;
+          }
+  
+          if (var10000 != null) {
+              Object var1 = var10000.intercept(this, CGLIB$hashCode$4$Method, CGLIB$emptyArgs, CGLIB$hashCode$4$Proxy);
+              return var1 == null ? 0 : ((Number)var1).intValue();
+          } else {
+              return super.hashCode();
+          }
+      }
+  
+      final Object CGLIB$clone$5() throws CloneNotSupportedException {
+          return super.clone();
+      }
+  
+      protected final Object clone() throws CloneNotSupportedException {
+          MethodInterceptor var10000 = this.CGLIB$CALLBACK_0;
+          if (var10000 == null) {
+              CGLIB$BIND_CALLBACKS(this);
+              var10000 = this.CGLIB$CALLBACK_0;
+          }
+  
+          return var10000 != null ? var10000.intercept(this, CGLIB$clone$5$Method, CGLIB$emptyArgs, CGLIB$clone$5$Proxy) : super.clone();
+      }
+  
+      public static MethodProxy CGLIB$findMethodProxy(Signature var0) {
+          String var10000 = var0.toString();
+          switch(var10000.hashCode()) {
+          case -1574182249:
+              if (var10000.equals("finalize()V")) {
+                  return CGLIB$finalize$1$Proxy;
+              }
+              break;
+          case -508378822:
+              if (var10000.equals("clone()Ljava/lang/Object;")) {
+                  return CGLIB$clone$5$Proxy;
+              }
+              break;
+          case 37055110:
+              if (var10000.equals("request()V")) {
+                  return CGLIB$request$0$Proxy;
+              }
+              break;
+          case 1826985398:
+              if (var10000.equals("equals(Ljava/lang/Object;)Z")) {
+                  return CGLIB$equals$2$Proxy;
+              }
+              break;
+          case 1913648695:
+              if (var10000.equals("toString()Ljava/lang/String;")) {
+                  return CGLIB$toString$3$Proxy;
+              }
+              break;
+          case 1984935277:
+              if (var10000.equals("hashCode()I")) {
+                  return CGLIB$hashCode$4$Proxy;
+              }
+          }
+  
+          return null;
+      }
+  
+      public RealSubject$$EnhancerByCGLIB$$8db2de4d() {
+          CGLIB$BIND_CALLBACKS(this);
+      }
+  
+      public static void CGLIB$SET_THREAD_CALLBACKS(Callback[] var0) {
+          CGLIB$THREAD_CALLBACKS.set(var0);
+      }
+  
+      public static void CGLIB$SET_STATIC_CALLBACKS(Callback[] var0) {
+          CGLIB$STATIC_CALLBACKS = var0;
+      }
+  
+      private static final void CGLIB$BIND_CALLBACKS(Object var0) {
+          RealSubject$$EnhancerByCGLIB$$8db2de4d var1 = (RealSubject$$EnhancerByCGLIB$$8db2de4d)var0;
+          if (!var1.CGLIB$BOUND) {
+              var1.CGLIB$BOUND = true;
+              Object var10000 = CGLIB$THREAD_CALLBACKS.get();
+              if (var10000 == null) {
+                  var10000 = CGLIB$STATIC_CALLBACKS;
+                  if (var10000 == null) {
+                      return;
+                  }
+              }
+  
+              var1.CGLIB$CALLBACK_0 = (MethodInterceptor)((Callback[])var10000)[0];
+          }
+  
+      }
+  
+      public Object newInstance(Callback[] var1) {
+          CGLIB$SET_THREAD_CALLBACKS(var1);
+          RealSubject$$EnhancerByCGLIB$$8db2de4d var10000 = new RealSubject$$EnhancerByCGLIB$$8db2de4d();
+          CGLIB$SET_THREAD_CALLBACKS((Callback[])null);
+          return var10000;
+      }
+  
+      public Object newInstance(Callback var1) {
+          CGLIB$SET_THREAD_CALLBACKS(new Callback[]{var1});
+          RealSubject$$EnhancerByCGLIB$$8db2de4d var10000 = new RealSubject$$EnhancerByCGLIB$$8db2de4d();
+          CGLIB$SET_THREAD_CALLBACKS((Callback[])null);
+          return var10000;
+      }
+  
+      public Object newInstance(Class[] var1, Object[] var2, Callback[] var3) {
+          CGLIB$SET_THREAD_CALLBACKS(var3);
+          RealSubject$$EnhancerByCGLIB$$8db2de4d var10000 = new RealSubject$$EnhancerByCGLIB$$8db2de4d;
+          switch(var1.length) {
+          case 0:
+              var10000.<init>();
+              CGLIB$SET_THREAD_CALLBACKS((Callback[])null);
+              return var10000;
+          default:
+              throw new IllegalArgumentException("Constructor not found");
+          }
+      }
+  
+      public Callback getCallback(int var1) {
+          CGLIB$BIND_CALLBACKS(this);
+          MethodInterceptor var10000;
+          switch(var1) {
+          case 0:
+              var10000 = this.CGLIB$CALLBACK_0;
+              break;
+          default:
+              var10000 = null;
+          }
+  
+          return var10000;
+      }
+  
+      public void setCallback(int var1, Callback var2) {
+          switch(var1) {
+          case 0:
+              this.CGLIB$CALLBACK_0 = (MethodInterceptor)var2;
+          default:
+          }
+      }
+  
+      public Callback[] getCallbacks() {
+          CGLIB$BIND_CALLBACKS(this);
+          return new Callback[]{this.CGLIB$CALLBACK_0};
+      }
+  
+      public void setCallbacks(Callback[] var1) {
+          this.CGLIB$CALLBACK_0 = (MethodInterceptor)var1[0];
+      }
+  
+      static {
+          CGLIB$STATICHOOK1();
+      }
+  }
+  ```
+  
+  代理类采用继承目标类的方式实现代理，代理类为目标类的子类。
+  
+  触发具体方法时，调用MethodInterceptor. intercept方法  
+  
+  ```java
+  var10000.intercept(this, CGLIB$request$0$Method, CGLIB$emptyArgs, CGLIB$request$0$Proxy);
+  
+  public Object intercept(Object o, Method method, Object[] objects, MethodProxy proxy) throws Throwable
+  ```
+  第一个传入参数Object o为代理对象， 第二参数method为通过反射找到的Method对象，第三个参数为方法调用参数，第四个参数为MethodProxy，提供调用两种目标方法的途径： invoke 和 invokeSuper
+  
+  ```java
+  public Object invoke(Object obj, Object[] args) throws Throwable;
+  
+  public Object invokeSuper(Object obj, Object[] args) throws Throwable;
+  ```
+  具体用法请见示例
+  
+  ### cglib多重代理
+  
+  原始的CGLIB API不支持多重代理,只能通过CallbackFilter在多个Callback选择一个调用。
+  
+  要支持多重代理需采用责任链设计模式
+  
+  ```java
+  public interface Interceptor {
+      public Object doInterceptor(InterceptorChain chain, Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable;
+  }
   
   
-  System.setProperty(DebuggingClassWriter.DEBUG_LOCATION_PROPERTY, "D:\\\\class");  --该设置用于输出cglib动态代理产生的类
-     
+  public class InterceptorChain implements MethodInterceptor {
   
-  https://www.jianshu.com/p/269afd0a52e6
+      private List<Interceptor> interceptors;
   
-  https://www.jianshu.com/p/a501d53aeb6a
+      private int index;
+  
+      public InterceptorChain(List<Interceptor> interceptors) {
+          this.interceptors = interceptors;
+          this.index = 0;
+      }
+  
+      public Object doNext(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
+          if(index < interceptors.size()){
+              Interceptor in = interceptors.get(index);
+              index++;
+              in.doInterceptor(this,obj,method,args,proxy);
+          }else{
+              return proxy.invokeSuper(obj,args);
+          }
+          return null;
+      }
+  
+      public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
+          return doNext(obj, method, args, proxy);
+      }
+  }
+  
+  public class LogInterceptor implements  Interceptor{
+      @Override
+      public Object doInterceptor(InterceptorChain chain, Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
+          // Doing something before request
+          System.out.println("Doing something before request");
+          Object result = chain.doNext(obj, method, args, proxy);
+          // Doing something after request
+          System.out.println("Doing something after request");
+          return result;
+      }
+  }
+  
+  public class TimeInterceptor implements  Interceptor{
+      @Override
+      public Object doInterceptor(InterceptorChain chain, Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
+          long start = System.currentTimeMillis();
+          Object result = chain.doNext(obj, method, args, proxy);
+          long end = System.currentTimeMillis();
+          System.out.println("Request finish in " + (end -start));
+          return result;
+  
+      }
+  }
+  
+  public class Main {
+      public static void main(String[] args) {
+          List<Interceptor> list = new ArrayList<>();
+          list.add(new TimeInterceptor());
+          list.add(new LogInterceptor());
+  
+          Enhancer enhancer = new Enhancer();
+          enhancer.setSuperclass(RealSubject.class);
+          enhancer.setCallback(new InterceptorChain(list));
+  
+          Subject proxy = (Subject)enhancer.create();
+          proxy.request();
+      }
+  }
+  ```
+  
+  改进：可以在InterceptorChain增加ThreadLocal，减少doNext和doInterceptor的传参数目。
+  
+  
+  ## 参考文献
+  
+  1.  [JDK动态代理-超详细源码分析 - 简书](https://www.jianshu.com/p/269afd0a52e6)
+  2. [Java JDK代理、CGLIB、AspectJ代理分析比较 （转） - 简书](https://www.jianshu.com/p/a501d53aeb6a)
+  3. [cglib动态代理中invokeSuper和invoke的区别_z69183787的专栏-CSDN博客](https://blog.csdn.net/z69183787/article/details/106878203)
 '''
 linesHighlighted: []
 isStarred: false

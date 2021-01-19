@@ -2,7 +2,7 @@
 
 ## 作用
 
-客户端通过代理间接地访问该对象，从而限制、增强或修改该对象的一些特性。
+客户端通过代理间接地访问目标对象，从而限制、增强或修改该对象的一些特性。
 
 优点：
 1. 代理模式在客户端与目标对象之间起到一个中介作用和保护目标对象的作用
@@ -74,15 +74,6 @@ public class Main {
 
 ```
 
-## 动态代理
 
-jdk.proxy.ProxyGenerator.saveGeneratedFiles true
+代理的设计模式的缺点在于增加类，提高了复杂度，该问题可以通过动态代理得到解决。
 
-
-System.setProperty(DebuggingClassWriter.DEBUG_LOCATION_PROPERTY, "D:\\class");  --该设置用于输出cglib动态代理产生的类
-System.getProperties().put("sun.misc.ProxyGenerator.saveGeneratedFiles", "true");   --该设置用于输出jdk动态代理产生的类
-
-
-https://www.jianshu.com/p/269afd0a52e6
-
-https://www.jianshu.com/p/a501d53aeb6a
