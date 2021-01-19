@@ -1,5 +1,5 @@
 createdAt: "2020-12-28T08:48:36.424Z"
-updatedAt: "2021-01-11T04:19:26.947Z"
+updatedAt: "2021-01-11T11:33:21.413Z"
 type: "MARKDOWN_NOTE"
 folder: "519177323b9b1554eb7a"
 title: "反射"
@@ -248,6 +248,43 @@ content: '''
   
   System.out.println(((Bird)bird).getNickname());
   ```
+  
+  ## 数组
+  
+  简单数组
+  
+  ```java
+  // 新建数组
+  Object intArray = Array.newInstance(int.class,10);
+  
+  // 设置数组元素
+  // 设置超过长度，抛出ArrayIndexOutOfBoundsException
+  // Array.setInt(intArray,11,13);
+  Array.setInt(intArray,0,13);
+  
+  // 得到数组元素
+  System.out.println(Array.getInt(intArray,0));
+  ```
+  
+  多维数组：
+  
+  ```java
+  // 新建多维数组
+  Object multiArray = Array.newInstance(int.class,2,3);
+  Object row0 = Array.get(multiArray,0);
+  Object row1 = Array.get(multiArray,1);
+  
+  Array.setInt(row0,2,1);
+  Array.setInt(row1,1,-1);
+  ```
+  
+  ## 缺点
+  
+  1. 性能问题。因为反射是在运行时而不是在编译时，所有不会利用到编译优化，同时因为是动态生成，因此，反射操作的效率要比那些非反射操作低得多。
+  2. 安全问题。使用反射技术要求程序必须在一个没有安全限制的环境中运行。如果一个程序必须在有安全限制的环境中运行，如Applet，那么这就是个问题了。
+  3. 代码问题。由于反射允许代码执行一些在正常情况下不被允许的操作（比如访问私有的属性和方法），所以使用反射可能会导致意料之外的副作用－－代码有功能上的错误，降低可移植性。反射代码破坏了抽象性，因此当平台发生改变的时候，代码的行为就有可能也随着变化。
+  
+  
   
   
 '''

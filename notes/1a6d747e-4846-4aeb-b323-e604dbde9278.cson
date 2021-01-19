@@ -1,5 +1,5 @@
 createdAt: "2020-12-22T14:57:38.396Z"
-updatedAt: "2020-12-22T14:58:25.847Z"
+updatedAt: "2021-01-19T02:51:00.580Z"
 type: "MARKDOWN_NOTE"
 folder: "7aeedd67bc6c0a7b9661"
 title: "Proxy"
@@ -14,4 +14,4 @@ content: '''
 '''
 linesHighlighted: []
 isStarred: false
-isTrashed: false
+isTrashed: true

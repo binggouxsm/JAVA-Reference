@@ -1,0 +1,228 @@
+createdAt: "2021-01-19T05:46:46.144Z"
+updatedAt: "2021-01-19T08:08:33.746Z"
+type: "MARKDOWN_NOTE"
+folder: "519177323b9b1554eb7a"
+title: "代理"
+tags: []
+content: '''
+  # 代理
+  
+  ## 静态代理（代理模式）
+  
+  客户端通过代理间接地访问目标对象，从而限制、增强或修改该对象的一些特性。
+  
+  客户端与目标对象分离，在一定程度上降低了系统的耦合度，增加了程序的可扩展性。
+  
+  ![Proxy 模式](https://gitee.com/binggouxsm/JAVA-Reference/raw/master/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/pics/Proxy.png)
+  
+  ### 具体实现
+  
+  ```java
+  public interface Subject {
+  	public void request();
+  }
+  
+  public class RealSubject implements Subject {
+  	public void request() {
+  		try {
+  			Thread.sleep((long) (10000*Math.random()));
+  		} catch (InterruptedException e) {
+  			e.printStackTrace();
+  		}
+  		System.out.println("Doing Something");
+  	}
+  }
+  
+  public class LogProxy implements Subject{
+  	private Subject target;
+  
+  	public LogProxy(Subject target) {
+  		this.target = target;
+  	}
+  	
+  	public void request() {
+  		// Doing something before request 
+  		System.out.println("Doing something before request");
+  		target.request();
+  		// Doing something after request
+  		System.out.println("Doing something after request");
+  	}
+  }
+  
+  public class TimeProxy implements Subject{
+  	private Subject target;
+  
+  	public TimeProxy(Subject target) {
+  		this.target = target;
+  	}
+  	
+  	public void request() {
+  		long start = System.currentTimeMillis();
+  		target.request();
+  		long end = System.currentTimeMillis();
+  		System.out.println("Request finish in " + (end -start));
+  	}
+  }
+  
+  public class Main {
+  	public static void main(String[] args) {
+  		Subject proxy = new TimeProxy(new LogProxy(new RealSubject()));
+  		proxy.request();
+  	}
+  }
+  
+  ```
+  
+  缺点：
+  1. 代理类和被代理类实现了同一接口，当接口增加方法时，两者都需增加方法，增加代码维护复杂度
+  2. 增加了各种代理类，且代理类只能服务一组接口，当系统比较复杂，需要代理多组接口时，将新增大量的代理类，增加系统复杂度
+  
+  解决方案：动态代理，指在程序运行期间根据需要动态创建代理类及其实例来完成具体的功能。
+  
+  ## JDK动态代理
+  
+  ### 具体实现
+  
+  ```java
+  public class LogHandler implements InvocationHandler {
+      // target 可以直接是 Object类型，对所有对象进行代理
+      private Subject target;
+  
+      public LogHandler(Subject target) {
+          this.target = target;
+      }
+  
+      @Override
+      public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+          // Doing something before request
+          System.out.println("Doing something before request");
+          Object result = method.invoke(target,args);
+          // Doing something after request
+          System.out.println("Doing something after request");
+          return result;
+      }
+  }
+  
+  public class TimeHandler implements InvocationHandler {
+  
+      private Subject target;
+  
+      public TimeHandler(Subject target) {
+          this.target = target;
+      }
+  
+      @Override
+      public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+          long start = System.currentTimeMillis();
+          Object result = method.invoke(target,args);
+          long end = System.currentTimeMillis();
+          System.out.println("Request finish in " + (end -start));
+          return result;
+      }
+  }
+  
+  public class Main {
+      public static void main(String[] args) {
+          //该设置用于输出jdk动态代理产生的类
+          System.getProperties().put("sun.misc.ProxyGenerator.saveGeneratedFiles", "true");
+          // jdk8之后的版本采用如下设置
+          // System.getProperties().put("jdk.proxy.ProxyGenerator.saveGeneratedFiles", "true");
+  
+          Subject subject = new RealSubject();
+          //ClassLoader一般为被代理类的类加载器或者其父类加载器
+          ClassLoader classLoader = Subject.class.getClassLoader();
+          
+          Subject proxy1 = (Subject)Proxy.newProxyInstance(classLoader,new Class[]{Subject.class},new LogHandler(subject));
+          Subject proxy2 = (Subject)Proxy.newProxyInstance(classLoader,new Class[]{Subject.class},new TimeHandler(proxy1));
+  
+          proxy2.request();
+      }
+  }
+  ```
+  
+  ### 原理浅析
+  
+  通过设置JVM参数 sun.misc.ProxyGenerator.saveGeneratedFiles 为true (JDK8 以后的版本参数为jdk.proxy.ProxyGenerator.saveGeneratedFiles)，JVM会将通过ASM字节码操作框架，动态生成的代理类$Proxy0输出到本地。
+  
+  反编译后如下：
+  ```java
+  public final class $Proxy0 extends Proxy implements Subject {
+      private static Method m1;
+      private static Method m2;
+      private static Method m3;
+      private static Method m0;
+  
+      public $Proxy0(InvocationHandler var1) throws  {
+          super(var1);
+      }
+  
+      public final boolean equals(Object var1) throws  {
+          try {
+              return (Boolean)super.h.invoke(this, m1, new Object[]{var1});
+          } catch (RuntimeException | Error var3) {
+              throw var3;
+          } catch (Throwable var4) {
+              throw new UndeclaredThrowableException(var4);
+          }
+      }
+  
+      public final String toString() throws  {
+          try {
+              return (String)super.h.invoke(this, m2, (Object[])null);
+          } catch (RuntimeException | Error var2) {
+              throw var2;
+          } catch (Throwable var3) {
+              throw new UndeclaredThrowableException(var3);
+          }
+      }
+  
+      public final void request() throws  {
+          try {
+              super.h.invoke(this, m3, (Object[])null);
+          } catch (RuntimeException | Error var2) {
+              throw var2;
+          } catch (Throwable var3) {
+              throw new UndeclaredThrowableException(var3);
+          }
+      }
+  
+      public final int hashCode() throws  {
+          try {
+              return (Integer)super.h.invoke(this, m0, (Object[])null);
+          } catch (RuntimeException | Error var2) {
+              throw var2;
+          } catch (Throwable var3) {
+              throw new UndeclaredThrowableException(var3);
+          }
+      }
+  
+      static {
+          try {
+              m1 = Class.forName("java.lang.Object").getMethod("equals", Class.forName("java.lang.Object"));
+              m2 = Class.forName("java.lang.Object").getMethod("toString");
+              m3 = Class.forName("com.eden.javalearning.proxy.Subject").getMethod("request");
+              m0 = Class.forName("java.lang.Object").getMethod("hashCode");
+          } catch (NoSuchMethodException var2) {
+              throw new NoSuchMethodError(var2.getMessage());
+          } catch (ClassNotFoundException var3) {
+              throw new NoClassDefFoundError(var3.getMessage());
+          }
+      }
+  }
+  ```
+  
+  
+   
+   ## CGLIB 动态代理
+  
+  
+  System.setProperty(DebuggingClassWriter.DEBUG_LOCATION_PROPERTY, "D:\\\\class");  --该设置用于输出cglib动态代理产生的类
+     
+  
+  https://www.jianshu.com/p/269afd0a52e6
+  
+  https://www.jianshu.com/p/a501d53aeb6a
+'''
+linesHighlighted: []
+isStarred: false
+isTrashed: false
