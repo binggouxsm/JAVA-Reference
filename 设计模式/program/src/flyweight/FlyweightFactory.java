@@ -1,20 +1,19 @@
-package flyweight;
+ï»¿package flyweight;
 
 import java.util.HashMap;
 
 public class FlyweightFactory {
-	
+
 	private HashMap<String, Flyweight> flyweights = new HashMap<String, Flyweight>();
-	
+
 	public Flyweight getFlyweight(String key){
 		Flyweight flyweight = (Flyweight) flyweights.get(key);
 		if (flyweight != null) {
-			System.out.println("¾ßÌåÏíÔª" + key + "ÒÑ¾­´æÔÚ£¬±»³É¹¦»ñÈ¡£¡");
+			System.out.println("å…·ä½“äº«å…ƒ" + key + "å·²ç»å­˜åœ¨ï¼Œè¢«æˆåŠŸè·å–ï¼");
 		} else {
 			flyweight = new ConcreteFlyweight(key);
 			flyweights.put(key, flyweight);
 		}
 		return flyweight;
 	}
-
 }

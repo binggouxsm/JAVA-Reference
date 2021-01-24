@@ -1,4 +1,4 @@
-package flyweight;
+锘縫ackage flyweight;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,14 +16,10 @@ public class CompositeConcreteFlyweight implements Flyweight {
 	}
 
 	@Override
-	public void operation(UnsharedConcreteFlyweight state) {
+	public void operation(Unshared state) {
 		for(int i = 0 ; i < children.size(); i++){
 			children.get(i).operation(state);
 		}
-		System.out.println("非享元信息是:" + state.getInfo());
+		System.out.println("闈炰韩鍏冧俊鎭槸:" + state.getInfo());
 	}
-	
-	
-	
-
 }

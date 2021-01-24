@@ -1,4 +1,4 @@
-package flyweight;
+ï»¿package flyweight;
 
 public class Main {
 	public static void main(String[] args) {
@@ -8,11 +8,11 @@ public class Main {
 		Flyweight f03 = factory.getFlyweight("a");
 		Flyweight f11 = factory.getFlyweight("b");
 		Flyweight f12 = factory.getFlyweight("b");
-		f01.operation(new UnsharedConcreteFlyweight("µÚ1´Îµ÷ÓÃa¡£"));
-		f02.operation(new UnsharedConcreteFlyweight("µÚ2´Îµ÷ÓÃa¡£"));
-		f03.operation(new UnsharedConcreteFlyweight("µÚ3´Îµ÷ÓÃa¡£"));
-		f11.operation(new UnsharedConcreteFlyweight("µÚ1´Îµ÷ÓÃb¡£"));
-		f12.operation(new UnsharedConcreteFlyweight("µÚ2´Îµ÷ÓÃb¡£"));
+		f01.operation(new Unshared("ç¬¬1æ¬¡è°ƒç”¨aã€‚"));
+		f02.operation(new Unshared("ç¬¬2æ¬¡è°ƒç”¨aã€‚"));
+		f03.operation(new Unshared("ç¬¬3æ¬¡è°ƒç”¨aã€‚"));
+		f11.operation(new Unshared("ç¬¬1æ¬¡è°ƒç”¨bã€‚"));
+		f12.operation(new Unshared("ç¬¬2æ¬¡è°ƒç”¨bã€‚"));
 		
 		CompositeConcreteFlyweight com = new CompositeConcreteFlyweight();
 		com.add(f01);
@@ -22,7 +22,7 @@ public class Main {
 		com1.add(f11);
 		com1.add(f12);
 		com.add(com1);
-		com.operation(new UnsharedConcreteFlyweight("µÚ1´Îµ÷ÓÃ¸´ºÏÏíÔª"));
+		com.operation(new Unshared("ç¬¬1æ¬¡è°ƒç”¨å¤åˆäº«å…ƒ"));
 	}
 
 }

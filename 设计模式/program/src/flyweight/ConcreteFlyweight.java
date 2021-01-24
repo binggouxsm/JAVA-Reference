@@ -1,4 +1,4 @@
-package flyweight;
+锘縫ackage flyweight;
 
 public class ConcreteFlyweight implements Flyweight{
 	
@@ -6,15 +6,11 @@ public class ConcreteFlyweight implements Flyweight{
 	
 	public ConcreteFlyweight(String key) {
 		this.key = key;
-		System.out.println("具体享元" + key + "被创建！");
+		System.out.println("鍏蜂綋浜厓" + key + "琚垱寤猴紒");
 	}
-
-
 	@Override
-	public void operation(UnsharedConcreteFlyweight state) {
-		System.out.print("具体享元" + key + "被调用，");
-	      System.out.println("非享元信息是:" + state.getInfo());
+	public void operation(Unshared state) {
+		System.out.print("鍏蜂綋浜厓" + key + "琚皟鐢紝");
+	      System.out.println("闈炰韩鍏冧俊鎭槸:" + state.getInfo());
 	}
-	
-
 }
